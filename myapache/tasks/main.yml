@@ -1,0 +1,13 @@
+---
+# tasks file for myapache
+  - name: install httpd rpm
+    package: 
+       name: "httpd" 
+  - name: start httpd
+    shell: "/usr/sbin/httpd"
+
+  - name: creating webpage
+    template: 
+          dest: "/var/www/html/index.html"
+          src: "index.html.j2"
+
