@@ -1,0 +1,11 @@
+- name: Configuring httpd server on backend server
+  hosts: my_web_server
+  roles:
+          - myapache
+
+- name: Configuring HAProxy
+  hosts: LB  
+  roles:
+          - myloadbalancer
+
+
