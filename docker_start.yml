@@ -1,0 +1,50 @@
+
+- hosts: localhost
+  vars:
+          image_name: "my_ansible_image"
+          version: "v1"
+          path_of_Dockerfile: "src/"
+  tasks:
+          - name: "Build docker image using Dockerfile"
+            docker_image:
+                    name: "{{ image_name }}:{{ version }}"
+                    build: 
+                            pull: yes
+                            path: "{{ path_of_Dockerfile }}"
+                    state: present
+                    source: build
+
+                    
+
+          - docker_container:
+                  name: "{{ item.container_name }}"
+                  image: "{{ image_name }}:{{ version }}"
+                  state: started
+                  interactive: yes
+                  tty: true
+
+                  ports:
+                          - "{{ item.ssh_port }}:22"
+                          - "{{ item.http_port }}:80"
+            with_items:
+                    - { container_name: "node1", ssh_port: "2225", http_port: "8085" }
+                    - { container_name: "node2", ssh_port: "2226", http_port: "8086" }
+                    - { container_name: "node3", ssh_port: "2227", http_port: "8087" }
+                    
+          
+          - lineinfile:
+                  path: "/root/ansible/inventory/inventory"
+                  insertafter: '^\[my_web_servers]'
+                  firstmatch: yes
+                  state: present
+                  line: "
+                         {{ item.container_name }} ansible_host={{ ansible_facts['default_ipv4']['address'] }} ansible_user=root ansible_ssh_pass=redhat ansible_connection=ssh ansible_port={{ item.ssh_port }}"
+            with_items:
+                    
+                    - { container_name: "node1", ssh_port: "2225" }
+                    - { container_name: "node2", ssh_port: "2226" }
+                    - { container_name: "node3", ssh_port: "2227" }
+
+
+
+
