@@ -1,0 +1,21 @@
+---
+# tasks file for myloadbalancer
+
+- name: install load balancer software
+  package:
+       name: "haproxy"
+
+
+- name: start HAProxy
+  service:
+          name: "haproxy"
+          state: started
+
+
+- name: Configuring backend app for round robin load balancer
+  template:
+          src: "haproxy.cfg.j1"
+          dest: "/etc/haproxy/haproxy.cfg"
+  notify: "Restart HAProxy"
+
+
